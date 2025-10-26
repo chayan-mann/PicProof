@@ -4,6 +4,7 @@ import { Camera, Users, UserPlus, UserMinus } from "lucide-react";
 import { userAPI, postAPI } from "../api";
 import { useAuthStore } from "../store/authStore";
 import PostCard from "../components/PostCard";
+import FollowListModal from "../components/FollowListModal";
 import { getProfilePicture } from "../utils/imageUrl";
 import "./ProfilePage.css";
 
@@ -14,6 +15,7 @@ const ProfilePage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [showFollowModal, setShowFollowModal] = useState(null); // 'followers' or 'following' or null
   const isOwnProfile = currentUser?._id === userId;
 
   useEffect(() => {
@@ -121,11 +123,19 @@ const ProfilePage = () => {
                 <strong>{posts.length}</strong>
                 <span>Posts</span>
               </div>
-              <div className="stat">
+              <div
+                className="stat clickable"
+                onClick={() => setShowFollowModal("followers")}
+                style={{ cursor: "pointer" }}
+              >
                 <strong>{user.followersCount || 0}</strong>
                 <span>Followers</span>
               </div>
-              <div className="stat">
+              <div
+                className="stat clickable"
+                onClick={() => setShowFollowModal("following")}
+                style={{ cursor: "pointer" }}
+              >
                 <strong>{user.followingCount || 0}</strong>
                 <span>Following</span>
               </div>
@@ -175,6 +185,14 @@ const ProfilePage = () => {
           ))
         )}
       </div>
+
+      {showFollowModal && (
+        <FollowListModal
+          userId={userId}
+          type={showFollowModal}
+          onClose={() => setShowFollowModal(null)}
+        />
+      )}
     </div>
   );
 };
