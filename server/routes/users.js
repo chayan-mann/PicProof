@@ -13,7 +13,8 @@ const upload = require("../middleware/upload");
 
 const router = express.Router();
 
-router.get("/search", searchUsers);
+// Public routes
+router.get("/search", protect, searchUsers);
 router.get("/:id", getUserProfile);
 router.get("/:id/followers", getFollowers);
 router.get("/:id/following", getFollowing);
@@ -24,7 +25,7 @@ router.delete("/:id/follow", protect, unfollowUser);
 router.put(
   "/profile-picture",
   protect,
-  upload.single("image"),
+  upload.single("profilePicture"),
   updateProfilePicture
 );
 

@@ -284,6 +284,8 @@ exports.getUserPosts = async (req, res, next) => {
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
 
+    console.log("Fetching posts for user:", req.params.userId);
+
     const posts = await Post.find({ author: req.params.userId })
       .populate("author", "username name profilePicture isVerified")
       .sort({ createdAt: -1 })
@@ -291,6 +293,8 @@ exports.getUserPosts = async (req, res, next) => {
       .limit(limit);
 
     const total = await Post.countDocuments({ author: req.params.userId });
+
+    console.log("Found posts:", posts.length);
 
     res.status(200).json({
       success: true,
@@ -301,6 +305,7 @@ exports.getUserPosts = async (req, res, next) => {
       data: posts,
     });
   } catch (error) {
+    console.error("Error in getUserPosts:", error);
     next(error);
   }
 };

@@ -3,13 +3,34 @@ import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Trash2, AlertTriangle } from "lucide-react";
 import { postAPI } from "../api";
 import { useAuthStore } from "../store/authStore";
+import { getProfilePicture, getImageUrl } from "../utils/imageUrl";
 import "./PostCard.css";
 
+// Helper function to format time
+const formatTime = (date) => {
+  const now = new Date();
+  const postDate = new Date(date);
+  const diffInSeconds = Math.floor((now - postDate) / 1000);
+
+  if (diffInSeconds < 60) return "Just now";
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 604800)
+    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+
+  return postDate.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+};
+
 const PostCard = ({ post, onDelete }) => {
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(
+    post.likes?.includes(useAuthStore.getState().user?._id) || false
+  );
   const [likesCount, setLikesCount] = useState(post.likesCount || 0);
   const { user } = useAuthStore();
-  const isOwnPost = user?.id === post.author?._id;
+  const isOwnPost = user?._id === post.author?._id;
 
   const handleLike = async () => {
     try {
@@ -37,15 +58,20 @@ const PostCard = ({ post, onDelete }) => {
       <div className="post-header">
         <Link to={`/profile/${post.author?._id}`} className="post-author">
           <img
-            src={
-              post.author?.profilePicture || "https://via.placeholder.com/40"
-            }
+            src={getProfilePicture(post.author?.profilePicture)}
             alt={post.author?.username}
             className="author-avatar"
           />
-          <div>
-            <div className="author-name">{post.author?.name}</div>
-            <div className="author-username">@{post.author?.username}</div>
+          <div className="author-info">
+            <div className="author-name">
+              {post.author?.name || "Unknown User"}
+            </div>
+            <div className="post-meta">
+              <span className="author-username">
+                @{post.author?.username || "unknown"}
+              </span>
+              <span className="post-time"> · {formatTime(post.createdAt)}</span>
+            </div>
           </div>
         </Link>
         {isOwnPost && (
@@ -59,10 +85,7 @@ const PostCard = ({ post, onDelete }) => {
         <p>{post.content}</p>
         {post.mediaUrl && (
           <div className="post-media">
-            <img
-              src={`http://localhost:8000${post.mediaUrl}`}
-              alt="Post media"
-            />
+            <img src={getImageUrl(post.mediaUrl)} alt="Post media" />
             {post.aiFlag && post.aiFlag.isSynthetic && (
               <div className="ai-warning">
                 <AlertTriangle size={16} />

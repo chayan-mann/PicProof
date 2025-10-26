@@ -34,7 +34,7 @@ const Navbar = () => {
             <Bell size={24} />
             <span>Notifications</span>
           </Link>
-          <Link to={`/profile/${user?.id}`} className="nav-link">
+          <Link to={`/profile/${user?._id}`} className="nav-link">
             <User size={24} />
             <span>Profile</span>
           </Link>

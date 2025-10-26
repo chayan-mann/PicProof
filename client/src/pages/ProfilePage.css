@@ -1,16 +1,34 @@
 .profile-page {
   max-width: 900px;
   margin: 0 auto;
+  padding-bottom: 2rem;
 }
 
 .profile-header {
   margin-bottom: 2rem;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.profile-header:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .profile-cover {
-  height: 200px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  height: 240px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  position: relative;
+}
+
+.profile-cover::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
 }
 
 .profile-info {
@@ -20,107 +38,196 @@
 
 .avatar-section {
   position: relative;
-  width: 120px;
-  height: 120px;
-  margin-top: -60px;
+  width: 140px;
+  height: 140px;
+  margin-top: -70px;
   margin-bottom: 1rem;
+  z-index: 10;
 }
 
 .profile-avatar {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
-  border: 4px solid var(--bg-primary);
+  border: 5px solid var(--bg-primary);
   object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
 }
 
 .change-avatar-btn {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 36px;
-  height: 36px;
+  bottom: 5px;
+  right: 5px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background-color: var(--primary);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   border: 3px solid var(--bg-primary);
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .change-avatar-btn:hover {
-  background-color: var(--primary-dark);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .profile-details h1 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   margin-bottom: 0.25rem;
   color: var(--text-primary);
+  font-weight: 700;
 }
 
 .username {
   color: var(--text-secondary);
-  font-size: 0.9375rem;
-  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
 }
 
 .bio {
   color: var(--text-primary);
-  margin-bottom: 1rem;
-  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  font-size: 0.9375rem;
+  max-width: 600px;
 }
 
 .profile-stats {
   display: flex;
-  gap: 2rem;
-  margin-top: 1rem;
+  gap: 3rem;
+  margin-top: 1.5rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-color);
 }
 
 .stat {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.stat:hover {
+  transform: translateY(-2px);
 }
 
 .stat strong {
-  font-size: 1.125rem;
+  font-size: 1.375rem;
   color: var(--text-primary);
+  font-weight: 700;
 }
 
 .stat span {
   font-size: 0.875rem;
   color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.profile-info .btn {
+.follow-btn {
   position: absolute;
   top: 1rem;
   right: 2rem;
+  min-width: 120px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.follow-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profile-posts {
+  margin-top: 2rem;
 }
 
 .profile-posts h2 {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
+  font-size: 1.375rem;
+  margin-bottom: 1.5rem;
   color: var(--text-primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .no-posts {
   text-align: center;
   color: var(--text-secondary);
-  padding: 2rem;
+  padding: 3rem 2rem;
+  background: var(--bg-primary);
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.no-posts p {
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+}
+
+.no-posts .hint {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  margin-top: 0.5rem;
 }
 
 @media (max-width: 768px) {
+  .profile-cover {
+    height: 180px;
+  }
+
+  .avatar-section {
+    width: 100px;
+    height: 100px;
+    margin-top: -50px;
+  }
+
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
   .profile-info {
     padding: 0 1rem 1rem;
   }
 
-  .profile-info .btn {
+  .profile-details h1 {
+    font-size: 1.5rem;
+  }
+
+  .profile-stats {
+    gap: 1.5rem;
+  }
+
+  .stat strong {
+    font-size: 1.125rem;
+  }
+
+  .follow-btn {
     position: static;
     width: 100%;
     margin-top: 1rem;
   }
+
+  .profile-posts h2 {
+    font-size: 1.125rem;
+  }
 }
+

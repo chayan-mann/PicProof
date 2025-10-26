@@ -28,10 +28,26 @@
 .author-name {
   font-weight: 600;
   font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+
+.author-info {
+  flex: 1;
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .author-username {
   color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.post-time {
+  color: var(--text-tertiary);
   font-size: 0.875rem;
 }
 

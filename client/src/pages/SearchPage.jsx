@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, UserPlus, UserCheck } from "lucide-react";
 import { userAPI } from "../api";
+import { getProfilePicture } from "../utils/imageUrl";
 import "./SearchPage.css";
 
 const SearchPage = () => {
@@ -81,7 +82,7 @@ const SearchPage = () => {
           <div key={user._id} className="user-card card">
             <Link to={`/profile/${user._id}`} className="user-info">
               <img
-                src={user.profilePicture || "https://via.placeholder.com/60"}
+                src={getProfilePicture(user.profilePicture)}
                 alt={user.username}
                 className="user-avatar"
               />

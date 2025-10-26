@@ -33,7 +33,6 @@ const updatePostValidation = [
 // Routes
 router.get("/feed", protect, getFeed);
 router.get("/user/:userId", getUserPosts);
-router.get("/:id", getPost);
 
 // Protected routes
 router.post(
@@ -44,6 +43,8 @@ router.post(
   validate,
   createPost
 );
+
+router.get("/:id", getPost);
 router.put("/:id", protect, updatePostValidation, validate, updatePost);
 router.delete("/:id", protect, deletePost);
 router.post("/:id/like", protect, likePost);

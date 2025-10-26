@@ -4,6 +4,7 @@ import { Camera, Users, UserPlus, UserMinus } from "lucide-react";
 import { userAPI, postAPI } from "../api";
 import { useAuthStore } from "../store/authStore";
 import PostCard from "../components/PostCard";
+import { getProfilePicture } from "../utils/imageUrl";
 import "./ProfilePage.css";
 
 const ProfilePage = () => {
@@ -13,22 +14,26 @@ const ProfilePage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
-  const isOwnProfile = currentUser?.id === userId;
+  const isOwnProfile = currentUser?._id === userId;
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        console.log("Fetching profile for userId:", userId);
         const [userRes, postsRes] = await Promise.all([
           userAPI.getUserProfile(userId),
           postAPI.getUserPosts(userId),
         ]);
+        console.log("User data:", userRes.data);
+        console.log("Posts data:", postsRes.data);
         setUser(userRes.data.data);
         setPosts(postsRes.data.data);
         setIsFollowing(
-          userRes.data.data.followers?.some((f) => f._id === currentUser?.id)
+          userRes.data.data.followers?.some((f) => f._id === currentUser?._id)
         );
       } catch (error) {
         console.error("Error fetching profile:", error);
+        console.error("Error response:", error.response?.data);
       } finally {
         setLoading(false);
       }
@@ -88,12 +93,15 @@ const ProfilePage = () => {
         <div className="profile-info">
           <div className="avatar-section">
             <img
-              src={user.profilePicture || "https://via.placeholder.com/120"}
+              src={getProfilePicture(user.profilePicture)}
               alt={user.username}
               className="profile-avatar"
             />
             {isOwnProfile && (
-              <label className="change-avatar-btn">
+              <label
+                className="change-avatar-btn"
+                title="Change profile picture"
+              >
                 <Camera size={20} />
                 <input
                   type="file"
@@ -126,7 +134,9 @@ const ProfilePage = () => {
           {!isOwnProfile && (
             <button
               onClick={handleFollow}
-              className={`btn ${isFollowing ? "btn-outline" : "btn-primary"}`}
+              className={`btn follow-btn ${
+                isFollowing ? "btn-outline" : "btn-primary"
+              }`}
             >
               {isFollowing ? (
                 <>
@@ -143,9 +153,16 @@ const ProfilePage = () => {
       </div>
 
       <div className="profile-posts">
-        <h2>Posts</h2>
+        <h2>
+          <Users size={20} /> Posts
+        </h2>
         {posts.length === 0 ? (
-          <p className="no-posts">No posts yet</p>
+          <div className="no-posts card">
+            <p>No posts yet</p>
+            {isOwnProfile && (
+              <p className="hint">Share your first post to get started!</p>
+            )}
+          </div>
         ) : (
           posts.map((post) => (
             <PostCard

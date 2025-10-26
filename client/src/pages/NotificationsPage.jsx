@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Heart, MessageCircle, UserPlus, Check } from "lucide-react";
 import { notificationAPI } from "../api";
+import { getProfilePicture } from "../utils/imageUrl";
 import "./NotificationsPage.css";
 
 const NotificationsPage = () => {
@@ -106,10 +107,7 @@ const NotificationsPage = () => {
                   className="notification-sender"
                 >
                   <img
-                    src={
-                      notification.sender?.profilePicture ||
-                      "https://via.placeholder.com/40"
-                    }
+                    src={getProfilePicture(notification.sender?.profilePicture)}
                     alt={notification.sender?.username}
                   />
                 </Link>

@@ -120,12 +120,12 @@ userSchema.methods.getSignedJwtToken = function () {
 
 // Get user's followers count
 userSchema.virtual("followersCount").get(function () {
-  return this.followers.length;
+  return this.followers?.length || 0;
 });
 
 // Get user's following count
 userSchema.virtual("followingCount").get(function () {
-  return this.following.length;
+  return this.following?.length || 0;
 });
 
 // Ensure virtuals are included in JSON

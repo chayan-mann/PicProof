@@ -47,8 +47,13 @@ app.use(
   })
 );
 
-// Security headers
-app.use(helmet());
+// Security headers - Configure Helmet to allow serving static files
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 // Dev logging middleware
 if (process.env.NODE_ENV === "development") {
