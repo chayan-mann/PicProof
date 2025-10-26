@@ -4,27 +4,12 @@ import { Heart, MessageCircle, Trash2, AlertTriangle } from "lucide-react";
 import { postAPI } from "../api";
 import { useAuthStore } from "../store/authStore";
 import { getProfilePicture, getImageUrl } from "../utils/imageUrl";
+import { formatTime } from "../utils/formatTime";
+import PostModal from "./PostModal";
 import "./PostCard.css";
 
-// Helper function to format time
-const formatTime = (date) => {
-  const now = new Date();
-  const postDate = new Date(date);
-  const diffInSeconds = Math.floor((now - postDate) / 1000);
-
-  if (diffInSeconds < 60) return "Just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800)
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
-
-  return postDate.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-};
-
 const PostCard = ({ post, onDelete }) => {
+  const [showModal, setShowModal] = useState(false);
   const [liked, setLiked] = useState(
     post.likes?.includes(useAuthStore.getState().user?._id) || false
   );
@@ -104,11 +89,15 @@ const PostCard = ({ post, onDelete }) => {
           <Heart size={20} fill={liked ? "currentColor" : "none"} />
           <span>{likesCount}</span>
         </button>
-        <button className="action-btn">
+        <button className="action-btn" onClick={() => setShowModal(true)}>
           <MessageCircle size={20} />
           <span>{post.commentsCount || 0}</span>
         </button>
       </div>
+
+      {showModal && (
+        <PostModal postId={post._id} onClose={() => setShowModal(false)} />
+      )}
     </div>
   );
 };
