@@ -1,19 +1,64 @@
-# PicProof
+# PicProof 🌟
 
-PicProof is a next-generation social media platform that prioritizes trust, authenticity, and intelligent engagement. The platform incorporates advanced AI technologies to ensure a secure and engaging user experience.
+A next-generation social media platform that prioritizes trust, authenticity, and intelligent engagement with AI-powered content verification capabilities.
 
-## Features
+## 🚀 Features
 
-- **Deep Learning-Based Image Forensics**: Distinguishes real content from synthetic media.
-- **AI Assistants**: Context-aware, fact-based interactions powered by large language models.
-- **Scalable MERN Stack**: Ensures smooth performance and user experience.
+- **Secure Authentication**: JWT-based auth + Google OAuth 2.0 integration
+- **User Profiles**: Customizable profiles with follow/unfollow system
+- **Post Creation**: Share text, images, and videos with your followers
+- **Social Interactions**: Like, comment, and engage with posts
+- **Real-time Feed**: Personalized feed based on who you follow
+- **Search Functionality**: Discover and connect with new users
+- **Notifications**: Stay updated with likes, comments, and new followers
+- **Dark/Light Mode**: Toggle between themes for comfortable viewing
+- **AI-Ready Infrastructure**: Built-in support for AI content verification
+- **Responsive Design**: Beautiful UI that works on all devices
 
-## Project Structure
+## 🛠️ Tech Stack
 
-- `client/`: Frontend built with modern web technologies.
-- `server/`: Backend powered by Node.js, Express, MongoDB.
+### Backend
+- Node.js + Express.js - Server framework
+- MongoDB + Mongoose - Database and ODM
+- Passport.js - Authentication (JWT + Google OAuth)
+- Multer - File uploads
+- bcryptjs - Password hashing
 
+### Frontend
+- React 19 + Vite - UI framework and build tool
+- React Router DOM - Client-side routing
+- Axios - HTTP client
+- Zustand - State management
+- Lucide React - Icon library
 
-## License
+## 🚦 Getting Started
 
-This project is licensed under the MIT License.
+### Backend Setup
+```bash
+cd server
+npm install
+# Create .env file with MONGO_URL, JWT_SECRET, PORT
+npm run dev
+```
+
+### Frontend Setup
+```bash
+cd client
+npm install
+# Create .env file with VITE_API_URL=http://localhost:8000/api
+npm run dev
+```
+
+## 📚 API Endpoints
+
+- **Auth**: /api/auth (register, login, logout, google oauth)
+- **Users**: /api/users (profile, follow, search)
+- **Posts**: /api/posts (create, feed, like, delete)
+- **Comments**: /api/posts/:id/comments
+- **Notifications**: /api/notifications
+
+Full API documentation available in `server/API_DOCS.md`
+
+## 👨‍💻 Author
+
+Built by Chayan Mann

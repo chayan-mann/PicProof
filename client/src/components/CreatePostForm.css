@@ -1,0 +1,78 @@
+.create-post-form {
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: none;
+}
+
+.post-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 1rem;
+  border: none;
+  background-color: transparent;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: inherit;
+  resize: none;
+}
+
+.post-textarea:focus {
+  outline: none;
+}
+
+.post-textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.media-preview {
+  position: relative;
+  margin: 1rem 0;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.media-preview img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+}
+
+.remove-media {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.media-upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--primary);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.media-upload-btn:hover {
+  background-color: var(--bg-secondary);
+}
