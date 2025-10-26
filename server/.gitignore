@@ -11,13 +11,26 @@ yarn-error.log*
 
 # OS specific
 .DS_Store
+Thumbs.db
 
 # Editor specific
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
 # Build files
 dist/
 coverage/
+
+# Uploads (user generated content)
+uploads/*
+!uploads/.gitkeep
+
+# Testing
+.nyc_output/
+coverage/
+
+# Production
+build/

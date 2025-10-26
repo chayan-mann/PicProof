@@ -1,21 +1,33 @@
 {
-  "name": "server",
+  "name": "picproof-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend for PicProof - Next-gen social media platform with AI-powered content verification",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "server": "nodemon index.js"
   },
-  "keywords": [],
+  "keywords": ["social-media", "ai", "deepfake-detection", "mern"],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.20.0",
-    "mongoose": "^8.19.2"
+    "mongoose": "^8.19.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.0"
