@@ -88,6 +88,9 @@ const userSchema = new mongoose.Schema(
     lastLogin: {
       type: Date,
     },
+    moderationPreferences: {
+      type: Object,
+    }
   },
   {
     timestamps: true,

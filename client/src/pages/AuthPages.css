@@ -47,6 +47,13 @@
   gap: 0.5rem;
 }
 
+/* Inline row for label (left) and control (right) */
+.form-group.inline {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .form-group label {
   font-weight: 600;
   color: var(--text-primary);

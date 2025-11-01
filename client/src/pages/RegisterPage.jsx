@@ -5,7 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import './AuthPages.css';
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState({ username: '', email: '', password: '', name: '' });
+  const [formData, setFormData] = useState({ username: '', email: '', password: '', name: '', moderationPreferences: { ageRating: 'under18', isHarmful: false, isSynthetic: false, syntheticImages: false } });
   const [error, setError] = useState('');
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -13,7 +13,20 @@ const RegisterPage = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, type, value, checked } = e.target;
+    const isModerationField = ['ageRating', 'isHarmful', 'isSynthetic', 'syntheticImages'].includes(name);
+
+    if (isModerationField) {
+      setFormData((prev) => ({
+        ...prev,
+        moderationPreferences: {
+          ...prev.moderationPreferences,
+          [name]: type === 'checkbox' ? checked : value,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -100,6 +113,50 @@ const RegisterPage = () => {
                 className="input"
                 required
                 minLength="6"
+              />
+            </div>
+            <div className="form-group">
+              <label>Your Age</label>
+              <select
+                name="ageRating"
+                value={formData.moderationPreferences.ageRating}
+                onChange={handleChange}
+                className="input select"
+                required
+              >
+                <option value="under18">Under 18</option>
+                <option value="18+">18+</option>
+                <option value="21+">21+</option>
+              </select>
+            </div>
+            <div className="form-group inline">
+              <label>Allow Harmful Content</label>
+              <input
+                type="checkbox"
+                name="isHarmful"
+                checked={formData.moderationPreferences.isHarmful}
+                onChange={handleChange}
+                className="input checkbox"
+              />
+            </div>
+            <div className="form-group inline">
+              <label>Allow Synthetic Content</label>
+              <input
+                type="checkbox"
+                name="isSynthetic"
+                checked={formData.moderationPreferences.isSynthetic}
+                onChange={handleChange}
+                className="input checkbox"
+              />
+            </div>
+            <div className="form-group inline">
+              <label>Allow Synthetic Images</label>
+              <input
+                type="checkbox"
+                name="syntheticImages"
+                checked={formData.moderationPreferences.syntheticImages}
+                onChange={handleChange}
+                className="input checkbox"
               />
             </div>
             <button type="submit" className="btn btn-primary w-full" disabled={loading}>

@@ -77,11 +77,96 @@ exports.getFeed = async (req, res, next) => {
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
 
-    // Get posts from users the current user follows + their own posts
-    const posts = await Post.find({
-      $or: [{ author: { $in: req.user.following } }, { author: req.user.id }],
+    // Build content filters from user moderation preferences
+    const moderation = req.user?.moderationPreferences || {};
+    const agePref = moderation.ageRating; // 'under18' | '18+' | '21+'
+    const allowSynthetic = moderation.isSynthetic === true; // allow any synthetic content
+    const allowHarmful = moderation.isHarmful === true; // allow harmful content
+    const allowSyntheticImages = moderation.syntheticImages === true; // specifically allow synthetic images
+
+    let allowedAges = ["safe"]; // default
+    if (agePref === "18+") {
+      allowedAges = ["safe", "sensitive"];
+    } else if (agePref === "21+") {
+      allowedAges = ["safe", "sensitive", "explicit"];
+    }
+
+    const contentFilters = [];
+
+    // Age rating filter applies to both text and image analyses, when present
+    contentFilters.push({
+      $or: [
+        { "text_analysis.age_rating": { $in: allowedAges } },
+        { "text_analysis.age_rating": { $exists: false } },
+      ],
+    });
+    contentFilters.push({
+      $or: [
+        { "image_analysis.age_rating": { $in: allowedAges } },
+        { "image_analysis.age_rating": { $exists: false } },
+      ],
+    });
+
+    // Harmful content filter (if user does NOT allow harmful)
+    if (!allowHarmful) {
+      contentFilters.push({
+        $or: [
+          { "text_analysis.isHarmful": false },
+          { "text_analysis.isHarmful": { $exists: false } },
+        ],
+      });
+      contentFilters.push({
+        $or: [
+          { "image_analysis.isHarmful": false },
+          { "image_analysis.isHarmful": { $exists: false } },
+        ],
+      });
+    }
+
+    // Synthetic content filters
+    if (!allowSynthetic) {
+      // Block synthetic in both text and image analyses
+      contentFilters.push({
+        $or: [
+          { "text_analysis.isSynthetic": false },
+          { "text_analysis.isSynthetic": { $exists: false } },
+        ],
+      });
+      contentFilters.push({
+        $or: [
+          { "image_analysis.isSynthetic": false },
+          { "image_analysis.isSynthetic": { $exists: false } },
+        ],
+      });
+    } else if (!allowSyntheticImages) {
+      // User allows synthetic generally, but NOT synthetic images specifically
+      contentFilters.push({
+        $or: [
+          { "image_analysis.isSynthetic": false },
+          { "image_analysis.isSynthetic": { $exists: false } },
+        ],
+      });
+    }
+
+    const baseVisibility = {
       visibility: { $in: ["public", "followers"] },
-    })
+    };
+
+    const filteredOthersClause = {
+      $and: [
+        { author: { $in: req.user.following || [] } },
+        baseVisibility,
+        ...contentFilters,
+      ],
+    };
+
+    // Always include user's own posts without content filters
+    const ownClause = { author: req.user.id };
+
+    const finalQuery = { $or: [ownClause, filteredOthersClause] };
+
+    // Get posts from users the current user follows + their own posts with filters
+    const posts = await Post.find(finalQuery)
       .populate("author", "username name profilePicture isVerified")
       .populate({
         path: "comments",
@@ -92,10 +177,7 @@ exports.getFeed = async (req, res, next) => {
       .skip(skip)
       .limit(limit);
 
-    const total = await Post.countDocuments({
-      $or: [{ author: { $in: req.user.following } }, { author: req.user.id }],
-      visibility: { $in: ["public", "followers"] },
-    });
+    const total = await Post.countDocuments(finalQuery);
 
     res.status(200).json({
       success: true,

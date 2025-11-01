@@ -30,7 +30,7 @@ export const postAPI = {
   getFeed: (page = 1, limit = 10) =>
     api.get(`/posts/feed?page=${page}&limit=${limit}`),
   getPost: (id) => api.get(`/posts/${id}`),
-  getUserPosts: (userId, page = 1, limit = 10) =>
+  getUserPosts: (userId, page = 1, limit = 100) =>
     api.get(`/posts/user/${userId}?page=${page}&limit=${limit}`),
   createPost: (formData) =>
     api.post("/posts", formData, {

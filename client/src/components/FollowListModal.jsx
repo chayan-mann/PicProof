@@ -103,16 +103,6 @@ const FollowListModal = ({ userId, type, onClose }) => {
                       {user.bio && <div className="user-bio">{user.bio}</div>}
                     </div>
                   </Link>
-                  {currentUser && currentUser._id !== user._id && (
-                    <button
-                      onClick={() => handleFollow(user._id)}
-                      className={`follow-btn ${
-                        following.has(user._id) ? "following" : ""
-                      }`}
-                    >
-                      {following.has(user._id) ? "Unfollow" : "Follow"}
-                    </button>
-                  )}
                 </div>
               ))}
             </div>

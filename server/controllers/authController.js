@@ -49,7 +49,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access  Public
 exports.register = async (req, res, next) => {
   try {
-    const { username, email, password, name } = req.body;
+    const { username, email, password, name, moderationPreferences } = req.body;
 
     // Create user
     const user = await User.create({
@@ -57,6 +57,7 @@ exports.register = async (req, res, next) => {
       email,
       password,
       name,
+      moderationPreferences,
     });
 
     sendTokenResponse(user, 201, res);
