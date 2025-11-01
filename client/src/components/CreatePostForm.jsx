@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Image, X } from "lucide-react";
 import { postAPI } from "../api";
+import { useAuthStore } from "../store/authStore";
 import "./CreatePostForm.css";
 
 const CreatePostForm = ({ onPostCreated }) => {
@@ -8,6 +9,7 @@ const CreatePostForm = ({ onPostCreated }) => {
   const [media, setMedia] = useState(null);
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
+  const { user: currentUser } = useAuthStore();
 
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
@@ -28,7 +30,13 @@ const CreatePostForm = ({ onPostCreated }) => {
 
     try {
       const response = await postAPI.createPost(formData);
-      onPostCreated(response.data.data);
+      const created = response.data.data;
+      // Ensure author is present for immediate render
+      const newPost = {
+        ...created,
+        author: created?.author || currentUser || null,
+      };
+      onPostCreated(newPost);
       setContent("");
       setMedia(null);
       setPreview("");

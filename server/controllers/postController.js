@@ -3,7 +3,36 @@ const User = require("../models/User");
 const Comment = require("../models/Comment");
 const AIFlag = require("../models/AIFlag");
 const Notification = require("../models/Notification");
+const { GoogleGenAI } = require("@google/genai");
 const mongoose = require("mongoose");
+const ai = new GoogleGenAI({});
+
+async function getResponse(prompt) {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: `You are a content moderation AI.
+Analyze the following content and respond ONLY in JSON format:
+{
+  "isSynthetic": <boolean>,
+  "age_rating": <"safe" | "sensitive" | "explicit">,
+  "isHarmful": <boolean>
+}
+Do not include any explanations or additional text. Only return the JSON object.
+Content:
+${prompt}`
+          }
+        ],
+      },
+    ],
+  });
+
+  return response.text;
+}
 
 // @desc    Create a post
 // @route   POST /api/posts
@@ -12,6 +41,16 @@ exports.createPost = async (req, res, next) => {
   try {
     const { content, visibility, tags } = req.body;
 
+    let aiResponse = await getResponse(content);
+    let start = aiResponse.indexOf("{");
+    let end = aiResponse.lastIndexOf("}");
+    if (start !== -1 && end !== -1 && end >= start) {
+      aiResponse = aiResponse.substring(start, end + 1).trim();
+    } else {
+      aiResponse = aiResponse.trim();
+    }
+    aiResponse = JSON.parse(aiResponse);
+
     const postData = {
       content,
       author: req.user.id,
@@ -19,8 +58,8 @@ exports.createPost = async (req, res, next) => {
       tags: tags || [],
     };
 
-    // Handle media upload
-    if (req.file) {
+  // Handle media upload
+  if (req.file) {
       postData.mediaUrl = `/uploads/${req.file.filename}`;
       postData.mediaType = req.file.mimetype.startsWith("image")
         ? "image"
@@ -34,6 +73,9 @@ exports.createPost = async (req, res, next) => {
         status: "pending",
       });
 
+      // Populate author before returning so client can render immediately
+      await post.populate("author", "username name profilePicture isVerified");
+
       return res.status(201).json({
         success: true,
         data: post,
@@ -42,6 +84,8 @@ exports.createPost = async (req, res, next) => {
     }
 
     const post = await Post.create(postData);
+    // Populate author before returning
+    await post.populate("author", "username name profilePicture isVerified");
 
     res.status(201).json({
       success: true,
