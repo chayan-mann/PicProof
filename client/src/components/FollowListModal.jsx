@@ -15,14 +15,14 @@ const FollowListModal = ({ userId, type, onClose }) => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await userAPI.getUserProfile(userId);
-        const userData = response.data.data;
+        // Fetch populated users from dedicated endpoints
+        const response =
+          type === "followers"
+            ? await userAPI.getFollowers(userId)
+            : await userAPI.getFollowing(userId);
 
-        if (type === "followers") {
-          setUsers(userData.followers || []);
-        } else {
-          setUsers(userData.following || []);
-        }
+        const list = response.data?.data || [];
+        setUsers(list);
 
         // Set initial following state
         if (currentUser) {
@@ -41,10 +41,15 @@ const FollowListModal = ({ userId, type, onClose }) => {
 
   const handleFollow = async (targetUserId) => {
     try {
-      await userAPI.followUser(targetUserId);
+      const isFollowing = following.has(targetUserId);
+      if (isFollowing) {
+        await userAPI.unfollowUser(targetUserId);
+      } else {
+        await userAPI.followUser(targetUserId);
+      }
       setFollowing((prev) => {
         const newSet = new Set(prev);
-        if (newSet.has(targetUserId)) {
+        if (isFollowing) {
           newSet.delete(targetUserId);
         } else {
           newSet.add(targetUserId);
