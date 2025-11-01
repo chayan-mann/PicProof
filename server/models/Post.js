@@ -64,6 +64,14 @@ const postSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    image_analysis: {
+      type: Object,
+      default: null,
+    },
+    text_analysis: {
+      type: Object,
+      default: null,
+    },
   },
   {
     timestamps: true,

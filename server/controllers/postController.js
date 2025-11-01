@@ -1,7 +1,6 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
 const Comment = require("../models/Comment");
-const AIFlag = require("../models/AIFlag");
 const Notification = require("../models/Notification");
 const { getResponse } = require("../services/LLMService");
 const { callFlaskAPI } = require("../services/FlaskService");
@@ -30,6 +29,7 @@ exports.createPost = async (req, res, next) => {
       author: req.user.id,
       visibility: visibility || "public",
       tags: tags || [],
+      text_analysis: aiResponse,
     };
 
   // Handle media upload
@@ -42,13 +42,8 @@ exports.createPost = async (req, res, next) => {
       // Create AI flag entry for media analysis (will be processed by AI service)
       const buffer = fs.readFileSync(req.file.path);
       const mediaAnalysisResponse = await callFlaskAPI(buffer, req.file.filename, req.file.mimetype);
-      console.log("Media analysis response:", mediaAnalysisResponse);
+      postData.image_analysis = mediaAnalysisResponse;
       const post = await Post.create(postData);
-
-      await AIFlag.create({
-        post: post._id,
-        status: "pending",
-      });
 
       // Populate author before returning so client can render immediately
       await post.populate("author", "username name profilePicture isVerified");
@@ -97,18 +92,6 @@ exports.getFeed = async (req, res, next) => {
       .skip(skip)
       .limit(limit);
 
-    // Get AI flags for posts with media
-    const postsWithFlags = await Promise.all(
-      posts.map(async (post) => {
-        const postObj = post.toObject();
-        if (post.mediaUrl) {
-          const aiFlag = await AIFlag.findOne({ post: post._id });
-          postObj.aiFlag = aiFlag;
-        }
-        return postObj;
-      })
-    );
-
     const total = await Post.countDocuments({
       $or: [{ author: { $in: req.user.following } }, { author: req.user.id }],
       visibility: { $in: ["public", "followers"] },
@@ -120,7 +103,7 @@ exports.getFeed = async (req, res, next) => {
       total,
       page,
       pages: Math.ceil(total / limit),
-      data: postsWithFlags,
+      data: posts,
     });
   } catch (error) {
     next(error);
@@ -146,17 +129,10 @@ exports.getPost = async (req, res, next) => {
       });
     }
 
-    // Get AI flag if exists
-    let aiFlag = null;
-    if (post.mediaUrl) {
-      aiFlag = await AIFlag.findOne({ post: post._id });
-    }
-
     res.status(200).json({
       success: true,
       data: {
         ...post.toObject(),
-        aiFlag,
       },
     });
   } catch (error) {
@@ -225,9 +201,6 @@ exports.deletePost = async (req, res, next) => {
 
     // Delete associated comments
     await Comment.deleteMany({ post: post._id });
-
-    // Delete associated AI flags
-    await AIFlag.deleteOne({ post: post._id });
 
     await post.deleteOne();
 
