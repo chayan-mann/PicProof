@@ -186,7 +186,7 @@ exports.getFollowing = async (req, res, next) => {
 
 // @desc    Search users
 // @route   GET /api/users/search
-// @access  Public
+// @access  Private
 exports.searchUsers = async (req, res, next) => {
   try {
     const { q } = req.query;
@@ -198,12 +198,20 @@ exports.searchUsers = async (req, res, next) => {
       });
     }
 
+    // Exclude current user from search results
+    const excludeId = req.user?.id;
+
     const users = await User.find({
-      $or: [
-        { username: { $regex: q, $options: "i" } },
-        { name: { $regex: q, $options: "i" } },
+      $and: [
+        {
+          $or: [
+            { username: { $regex: q, $options: "i" } },
+            { name: { $regex: q, $options: "i" } },
+          ],
+        },
+        { isActive: true },
+        excludeId ? { _id: { $ne: excludeId } } : {},
       ],
-      isActive: true,
     })
       .select("username name profilePicture bio isVerified")
       .limit(20);

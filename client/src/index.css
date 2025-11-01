@@ -105,6 +105,28 @@ body {
   background-color: var(--bg-secondary);
 }
 
+/* Disabled button states */
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn-primary:disabled,
+.btn-primary[aria-disabled="true"] {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.btn-outline:disabled,
+.btn-outline[aria-disabled="true"] {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
 .input {
   width: 100%;
   padding: 0.75rem 1rem;

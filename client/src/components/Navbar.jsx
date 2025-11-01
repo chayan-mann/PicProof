@@ -14,6 +14,8 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  const profileLink = user?._id || user?.id ? `/profile/${user._id || user.id}` : "/home";
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -34,7 +36,7 @@ const Navbar = () => {
             <Bell size={24} />
             <span>Notifications</span>
           </Link>
-          <Link to={`/profile/${user?._id}`} className="nav-link">
+          <Link to={profileLink} className="nav-link">
             <User size={24} />
             <span>Profile</span>
           </Link>

@@ -28,6 +28,8 @@ const sendTokenResponse = (user, statusCode, res) => {
       success: true,
       token,
       user: {
+        // Include both _id and id for client compatibility
+        _id: user._id,
         id: user._id,
         username: user.username,
         email: user.email,

@@ -7,6 +7,7 @@ import './AuthPages.css';
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setErrors([]);
     setLoading(true);
 
     try {
@@ -25,7 +27,12 @@ const LoginPage = () => {
       setAuth(response.data.user, response.data.token);
       navigate('/home');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      // Handle validation errors from express-validator
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        setErrors(err.response.data.errors.map(e => e.message));
+      } else {
+        setError(err.response?.data?.message || 'Login failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -39,6 +46,15 @@ const LoginPage = () => {
           <p className="auth-subtitle">Sign in to continue to PicProof</p>
 
           {error && <div className="error-message">{error}</div>}
+          {errors.length > 0 && (
+            <div className="error-message">
+              <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                {errors.map((err, index) => (
+                  <li key={index}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">

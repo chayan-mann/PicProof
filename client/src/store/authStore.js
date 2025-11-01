@@ -11,7 +11,11 @@ export const useAuthStore = create(
 
       setAuth: (user, token) => {
         localStorage.setItem("token", token);
-        set({ user, token, isAuthenticated: true });
+        // Normalize user to always have both _id and id
+        const normalizedUser = user
+          ? { _id: user._id || user.id, id: user._id || user.id, ...user }
+          : null;
+        set({ user: normalizedUser, token, isAuthenticated: true });
       },
 
       updateUser: (user) => set({ user }),

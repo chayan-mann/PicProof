@@ -16,10 +16,18 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [showFollowModal, setShowFollowModal] = useState(null); // 'followers' or 'following' or null
-  const isOwnProfile = currentUser?._id === userId;
+  const currentUserId = currentUser?._id || currentUser?.id;
+  const isOwnProfile = currentUserId === userId;
 
   useEffect(() => {
     const fetchProfile = async () => {
+      // Validate userId before making API call
+      if (!userId || userId === "undefined" || userId === "null") {
+        console.error("Invalid userId:", userId);
+        setLoading(false);
+        return;
+      }
+
       try {
         console.log("Fetching profile for userId:", userId);
         const [userRes, postsRes] = await Promise.all([
@@ -31,7 +39,7 @@ const ProfilePage = () => {
         setUser(userRes.data.data);
         setPosts(postsRes.data.data);
         setIsFollowing(
-          userRes.data.data.followers?.some((f) => f._id === currentUser?._id)
+          userRes.data.data.followers?.some((f) => f._id === currentUserId)
         );
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -42,7 +50,7 @@ const ProfilePage = () => {
     };
 
     fetchProfile();
-  }, [userId, currentUser]);
+  }, [userId, currentUser, currentUserId]);
 
   const handleFollow = async () => {
     try {
@@ -141,24 +149,37 @@ const ProfilePage = () => {
               </div>
             </div>
           </div>
-          {!isOwnProfile && (
-            <button
-              onClick={handleFollow}
-              className={`btn follow-btn ${
-                isFollowing ? "btn-outline" : "btn-primary"
-              }`}
-            >
-              {isFollowing ? (
-                <>
-                  <UserMinus size={18} /> Unfollow
-                </>
-              ) : (
-                <>
-                  <UserPlus size={18} /> Follow
-                </>
-              )}
-            </button>
-          )}
+          <button
+            onClick={isOwnProfile ? undefined : handleFollow}
+            className={`btn follow-btn ${
+              isOwnProfile
+                ? "btn-outline"
+                : isFollowing
+                ? "btn-outline"
+                : "btn-primary"
+            }`}
+            disabled={isOwnProfile}
+            aria-disabled={isOwnProfile}
+            title={
+              isOwnProfile
+                ? "You can't follow yourself"
+                : isFollowing
+                ? "Unfollow"
+                : "Follow"
+            }
+          >
+            {isOwnProfile ? (
+              <>Your profile</>
+            ) : isFollowing ? (
+              <>
+                <UserMinus size={18} /> Unfollow
+              </>
+            ) : (
+              <>
+                <UserPlus size={18} /> Follow
+              </>
+            )}
+          </button>
         </div>
       </div>
 

@@ -7,6 +7,7 @@ import './AuthPages.css';
 const RegisterPage = () => {
   const [formData, setFormData] = useState({ username: '', email: '', password: '', name: '' });
   const [error, setError] = useState('');
+  const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setErrors([]);
     setLoading(true);
 
     try {
@@ -25,7 +27,12 @@ const RegisterPage = () => {
       setAuth(response.data.user, response.data.token);
       navigate('/home');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      // Handle validation errors from express-validator
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        setErrors(err.response.data.errors.map(e => e.message));
+      } else {
+        setError(err.response?.data?.message || 'Registration failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -39,6 +46,15 @@ const RegisterPage = () => {
           <p className="auth-subtitle">Join PicProof today</p>
 
           {error && <div className="error-message">{error}</div>}
+          {errors.length > 0 && (
+            <div className="error-message">
+              <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                {errors.map((err, index) => (
+                  <li key={index}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">

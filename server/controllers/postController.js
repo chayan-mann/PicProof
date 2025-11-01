@@ -3,6 +3,7 @@ const User = require("../models/User");
 const Comment = require("../models/Comment");
 const AIFlag = require("../models/AIFlag");
 const Notification = require("../models/Notification");
+const mongoose = require("mongoose");
 
 // @desc    Create a post
 // @route   POST /api/posts
@@ -280,19 +281,37 @@ exports.likePost = async (req, res, next) => {
 // @access  Public
 exports.getUserPosts = async (req, res, next) => {
   try {
+    const { userId } = req.params;
+
+    // Validate userId
+    if (!userId || userId === "undefined" || userId === "null") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID",
+      });
+    }
+
+    // Check if userId is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID format",
+      });
+    }
+
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
 
-    console.log("Fetching posts for user:", req.params.userId);
+    console.log("Fetching posts for user:", userId);
 
-    const posts = await Post.find({ author: req.params.userId })
+    const posts = await Post.find({ author: userId })
       .populate("author", "username name profilePicture isVerified")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await Post.countDocuments({ author: req.params.userId });
+    const total = await Post.countDocuments({ author: userId });
 
     console.log("Found posts:", posts.length);
 

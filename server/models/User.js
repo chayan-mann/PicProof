@@ -43,7 +43,8 @@ const userSchema = new mongoose.Schema(
     },
     profilePicture: {
       type: String,
-      default: "https://via.placeholder.com/150",
+      // Leave empty by default; client will render a local placeholder
+      default: "",
     },
     coverPhoto: {
       type: String,

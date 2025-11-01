@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, UserPlus, UserCheck } from "lucide-react";
 import { userAPI } from "../api";
 import { getProfilePicture } from "../utils/imageUrl";
+import { useAuthStore } from "../store/authStore";
 import "./SearchPage.css";
 
 const SearchPage = () => {
@@ -10,6 +11,8 @@ const SearchPage = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [followedUsers, setFollowedUsers] = useState(new Set());
+  const { user: currentUser } = useAuthStore();
+  const currentUserId = currentUser?._id || currentUser?.id;
 
   useEffect(() => {
     const searchUsers = async () => {
@@ -21,7 +24,12 @@ const SearchPage = () => {
       setLoading(true);
       try {
         const response = await userAPI.searchUsers(query);
-        setResults(response.data.data);
+        const list = response.data.data || [];
+        // Exclude self on client for extra safety
+        const filtered = currentUserId
+          ? list.filter((u) => u._id !== currentUserId)
+          : list;
+        setResults(filtered);
       } catch (error) {
         console.error("Error searching users:", error);
       } finally {
@@ -31,7 +39,7 @@ const SearchPage = () => {
 
     const debounce = setTimeout(searchUsers, 300);
     return () => clearTimeout(debounce);
-  }, [query]);
+  }, [query, currentUserId]);
 
   const handleFollow = async (userId) => {
     try {
