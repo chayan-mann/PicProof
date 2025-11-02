@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Camera, Users, UserPlus, UserMinus } from "lucide-react";
+import { Camera, Users, UserPlus, UserMinus, UserCheck } from "lucide-react";
 import { userAPI, postAPI, authAPI } from "../api";
 import { useAuthStore } from "../store/authStore";
 import PostCard from "../components/PostCard";
@@ -10,7 +10,7 @@ import "./ProfilePage.css";
 
 const ProfilePage = () => {
   const { userId } = useParams();
-  const { user: currentUser } = useAuthStore();
+  const { user: currentUser, updateUser } = useAuthStore();
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,12 +44,19 @@ const ProfilePage = () => {
         console.log("Posts data:", postsRes.data);
         setUser(userRes.data.data);
         setPosts(postsRes.data.data);
-        setIsFollowing(
-          userRes.data.data.followers?.some((f) => f._id === currentUserId)
-        );
+        
+        // Check if current user is following this user by checking current user's following list
+        const isOwnProfile = currentUserId === userId;
+        if (!isOwnProfile && currentUser?.following) {
+          const followingIds = currentUser.following.map(
+            (f) => typeof f === "object" ? f._id || f.id : f
+          );
+          setIsFollowing(followingIds.includes(userId));
+        } else {
+          setIsFollowing(false);
+        }
         
         // Load moderation preferences if viewing own profile
-        const isOwnProfile = currentUserId === userId;
         if (isOwnProfile && userRes.data.data.moderationPreferences) {
           setSettings(userRes.data.data.moderationPreferences);
         }
@@ -62,7 +69,7 @@ const ProfilePage = () => {
     };
 
     fetchProfile();
-  }, [userId, currentUser, currentUserId]);
+  }, [userId, currentUser?.following, currentUserId]);
 
   const handleFollow = async () => {
     try {
@@ -73,6 +80,14 @@ const ProfilePage = () => {
           ...prev,
           followersCount: prev.followersCount - 1,
         }));
+        // Update current user's following list in auth store
+        updateUser({
+          ...currentUser,
+          following: currentUser.following.filter((f) => {
+            const fid = typeof f === "object" ? f._id || f.id : f;
+            return fid !== userId;
+          }),
+        });
       } else {
         await userAPI.followUser(userId);
         setIsFollowing(true);
@@ -80,6 +95,11 @@ const ProfilePage = () => {
           ...prev,
           followersCount: prev.followersCount + 1,
         }));
+        // Update current user's following list in auth store
+        updateUser({
+          ...currentUser,
+          following: [...(currentUser.following || []), userId],
+        });
       }
     } catch (error) {
       console.error("Error following user:", error);
@@ -198,7 +218,7 @@ const ProfilePage = () => {
               <>Your profile</>
             ) : isFollowing ? (
               <>
-                <UserMinus size={18} /> Unfollow
+                <UserCheck size={18} /> Following
               </>
             ) : (
               <>

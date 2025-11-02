@@ -11,8 +11,18 @@ const SearchPage = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [followedUsers, setFollowedUsers] = useState(new Set());
-  const { user: currentUser } = useAuthStore();
+  const { user: currentUser, updateUser } = useAuthStore();
   const currentUserId = currentUser?._id || currentUser?.id;
+
+  // Initialize followed users from current user's following list
+  useEffect(() => {
+    if (currentUser?.following) {
+      const followingIds = currentUser.following.map(
+        (f) => typeof f === "object" ? f._id || f.id : f
+      );
+      setFollowedUsers(new Set(followingIds));
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     const searchUsers = async () => {
@@ -45,6 +55,11 @@ const SearchPage = () => {
     try {
       await userAPI.followUser(userId);
       setFollowedUsers((prev) => new Set(prev).add(userId));
+      // Update current user's following list in auth store
+      updateUser({
+        ...currentUser,
+        following: [...(currentUser.following || []), userId],
+      });
     } catch (error) {
       console.error("Error following user:", error);
     }
@@ -57,6 +72,14 @@ const SearchPage = () => {
         const newSet = new Set(prev);
         newSet.delete(userId);
         return newSet;
+      });
+      // Update current user's following list in auth store
+      updateUser({
+        ...currentUser,
+        following: currentUser.following.filter((f) => {
+          const fid = typeof f === "object" ? f._id || f.id : f;
+          return fid !== userId;
+        }),
       });
     } catch (error) {
       console.error("Error unfollowing user:", error);

@@ -38,6 +38,8 @@ const sendTokenResponse = (user, statusCode, res) => {
         bio: user.bio,
         followersCount: user.followersCount,
         followingCount: user.followingCount,
+        following: user.following,
+        followers: user.followers,
         isVerified: user.isVerified,
         role: user.role,
       },
