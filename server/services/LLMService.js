@@ -1,7 +1,7 @@
 const { GoogleGenAI } = require("@google/genai");
 const ai = new GoogleGenAI({});
 
-async function getResponse(prompt) {
+async function getModerationResponse(prompt) {
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
     contents: [
@@ -28,4 +28,24 @@ ${prompt}`
   return response.text;
 }
 
+async function getResponse(post, prompt) {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: `You are a helpful AI assistant that answers user  queries about posts on a social media platform.
+Given the following post: "${post}", provide a detailed and informative response to the user's query: "${prompt}"`
+          }
+        ],
+      },
+    ],
+  });
+
+  return response.text;
+}
+
+exports.getModerationResponse = getModerationResponse;
 exports.getResponse = getResponse;

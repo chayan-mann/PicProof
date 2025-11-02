@@ -2,7 +2,7 @@ const Post = require("../models/Post");
 const User = require("../models/User");
 const Comment = require("../models/Comment");
 const Notification = require("../models/Notification");
-const { getResponse } = require("../services/LLMService");
+const { getModerationResponse } = require("../services/LLMService");
 const { callFlaskAPI } = require("../services/FlaskService");
 const mongoose = require("mongoose");
 const fs = require("fs");
@@ -14,7 +14,7 @@ exports.createPost = async (req, res, next) => {
   try {
     const { content, visibility, tags } = req.body;
 
-    let aiResponse = await getResponse(content);
+    let aiResponse = await getModerationResponse(content);
     let start = aiResponse.indexOf("{");
     let end = aiResponse.lastIndexOf("}");
     if (start !== -1 && end !== -1 && end >= start) {
