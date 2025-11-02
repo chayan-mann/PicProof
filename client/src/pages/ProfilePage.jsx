@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Camera, Users, UserPlus, UserMinus } from "lucide-react";
-import { userAPI, postAPI } from "../api";
+import { userAPI, postAPI, authAPI } from "../api";
 import { useAuthStore } from "../store/authStore";
 import PostCard from "../components/PostCard";
 import FollowListModal from "../components/FollowListModal";
@@ -16,6 +16,12 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [showFollowModal, setShowFollowModal] = useState(null); // 'followers' or 'following' or null
+  const [settings, setSettings] = useState({
+    ageRating: 'under18',
+    isSynthetic: false,
+    isHarmful: false,
+    syntheticImages: false,
+  });
   const currentUserId = currentUser?._id || currentUser?.id;
   const isOwnProfile = currentUserId === userId;
 
@@ -41,6 +47,12 @@ const ProfilePage = () => {
         setIsFollowing(
           userRes.data.data.followers?.some((f) => f._id === currentUserId)
         );
+        
+        // Load moderation preferences if viewing own profile
+        const isOwnProfile = currentUserId === userId;
+        if (isOwnProfile && userRes.data.data.moderationPreferences) {
+          setSettings(userRes.data.data.moderationPreferences);
+        }
       } catch (error) {
         console.error("Error fetching profile:", error);
         console.error("Error response:", error.response?.data);
@@ -90,6 +102,20 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error updating profile picture:", error);
       alert("Failed to update profile picture");
+    }
+  };
+
+  const handleSettingsChange = async (newSettings) => {
+    setSettings(newSettings);
+    
+    // Update in database
+    try {
+      await authAPI.updateDetails({
+        moderationPreferences: newSettings,
+      });
+    } catch (error) {
+      console.error("Error updating moderation preferences:", error);
+      alert("Failed to update settings");
     }
   };
 
@@ -182,6 +208,60 @@ const ProfilePage = () => {
           </button>
         </div>
       </div>
+
+      {isOwnProfile && (
+        <div className="moderation-actions">
+        <div className="profile-settings card">
+          <h3>Content Settings</h3>
+          <div className="settings-row">
+            <label>
+              <input
+                type="checkbox"
+                checked={settings.isSynthetic}
+                onChange={() =>
+                  handleSettingsChange({
+                    ...settings,
+                    isSynthetic: !settings.isSynthetic,
+                  })
+                }
+              />
+              Allow synthetic content
+            </label>
+          </div>
+          <div className="settings-row">
+            <label>
+              <input
+                type="checkbox"
+                checked={settings.syntheticImages}
+                onChange={() =>
+                  handleSettingsChange({
+                    ...settings,
+                    syntheticImages: !settings.syntheticImages,
+                  })
+                }
+              />
+              Allow synthetic images
+            </label>
+          </div>
+          <div className="settings-row">
+            <label>
+              <input
+                type="checkbox"
+                checked={settings.isHarmful}
+                onChange={() =>
+                  handleSettingsChange({
+                    ...settings,
+                    isHarmful: !settings.isHarmful,
+                  })
+                }
+              />
+              Allow potentially harmful content
+            </label>
+          </div>
+        </div>
+        </div>
+        )
+      }
 
       <div className="profile-posts">
         <h2>

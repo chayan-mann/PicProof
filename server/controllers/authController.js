@@ -141,7 +141,13 @@ exports.updateDetails = async (req, res, next) => {
       name: req.body.name,
       bio: req.body.bio,
       email: req.body.email,
+      moderationPreferences: req.body.moderationPreferences,
     };
+
+    // Only include defined fields
+    Object.keys(fieldsToUpdate).forEach(
+      (key) => fieldsToUpdate[key] === undefined && delete fieldsToUpdate[key]
+    );
 
     const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
       new: true,
