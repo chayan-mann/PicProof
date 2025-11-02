@@ -9,6 +9,12 @@ import PostModal from "./PostModal";
 import "./PostCard.css";
 
 const PostCard = ({ post, onDelete }) => {
+  const textAnalysis = post.text_analysis;
+  const imageAnalysis = post.image_analysis;
+  const isSynthetic = textAnalysis?.isSynthetic;
+  const ageRating = textAnalysis?.age_rating;
+  const imagePrediction = imageAnalysis?.prediction;
+  const isHarmful = textAnalysis?.isHarmful;
   const [showModal, setShowModal] = useState(false);
   const [liked, setLiked] = useState(
     post.likes?.includes(useAuthStore.getState().user?._id) || false
@@ -78,6 +84,17 @@ const PostCard = ({ post, onDelete }) => {
               </div>
             )}
           </div>
+        )}
+      </div>
+
+      <div className="post-tags">
+        {isSynthetic && <span className="tag synthetic">Synthetic</span>}
+        {isHarmful && <span className="tag harmful">Harmful</span>}
+        {ageRating && ageRating !== "safe" && (
+          <span className="tag age-rating">{ageRating}</span>
+        )}
+        {imagePrediction && imagePrediction !== "REAL" && (
+          <span className="tag image-prediction">{imagePrediction}</span>
         )}
       </div>
 

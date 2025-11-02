@@ -130,3 +130,36 @@
 .action-btn.liked {
   color: var(--danger);
 }
+
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.tag {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: white;
+}
+
+.tag.synthetic {
+  background-color: #ffc107;
+}
+
+.tag.harmful {
+  background-color: #dc3545;
+}
+
+.tag.age-rating {
+  background-color: #17a2b8;
+}
+
+.tag.image-prediction {
+  background-color: #6f42c1;
+}
