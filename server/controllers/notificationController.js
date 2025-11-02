@@ -9,12 +9,46 @@ exports.getNotifications = async (req, res, next) => {
     const limit = parseInt(req.query.limit, 10) || 20;
     const skip = (page - 1) * limit;
 
+    // First, check if user exists and has valid ID
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
     const notifications = await Notification.find({ recipient: req.user.id })
-      .populate("sender", "username profilePicture")
-      .populate("post", "content")
+      .populate({
+        path: "sender",
+        select: "username profilePicture name",
+        options: { strictPopulate: false }
+      })
+      .populate({
+        path: "post",
+        select: "content images",
+        options: { strictPopulate: false }
+      })
+      .populate({
+        path: "comment",
+        select: "content",
+        options: { strictPopulate: false }
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
+
+    // Filter out notifications with missing critical references
+    const validNotifications = notifications.filter(
+      (notification) => {
+        // Keep notifications that don't require a sender (system notifications)
+        if (["system", "ai-flag"].includes(notification.type)) {
+          return true;
+        }
+        // For other types, sender is required
+        return notification.sender != null;
+      }
+    );
 
     const total = await Notification.countDocuments({ recipient: req.user.id });
     const unreadCount = await Notification.countDocuments({
@@ -24,14 +58,23 @@ exports.getNotifications = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      count: notifications.length,
+      count: validNotifications.length,
       total,
       unreadCount,
       page,
       pages: Math.ceil(total / limit),
-      data: notifications,
+      data: validNotifications,
     });
   } catch (error) {
+    console.error("Error in getNotifications:", error);
+    // Send more detailed error in development
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
+    }
     next(error);
   }
 };

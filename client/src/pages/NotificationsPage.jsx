@@ -58,7 +58,14 @@ const NotificationsPage = () => {
   };
 
   const getNotificationText = (notification) => {
-    const senderName = notification.sender?.name || "Someone";
+    // Handle system notifications
+    if (notification.type === "system" || notification.type === "ai-flag") {
+      return notification.message;
+    }
+
+    // Get sender name from available fields
+    const senderName = notification.sender?.name || notification.sender?.username || "Someone";
+    
     switch (notification.type) {
       case "like":
         return `${senderName} liked your post`;
@@ -67,7 +74,7 @@ const NotificationsPage = () => {
       case "follow":
         return `${senderName} started following you`;
       default:
-        return "New notification";
+        return notification.message || "New notification";
     }
   };
 
@@ -102,15 +109,24 @@ const NotificationsPage = () => {
                 {getNotificationIcon(notification.type)}
               </div>
               <div className="notification-content">
-                <Link
-                  to={`/profile/${notification.sender?._id}`}
-                  className="notification-sender"
-                >
-                  <img
-                    src={getProfilePicture(notification.sender?.profilePicture)}
-                    alt={notification.sender?.username}
-                  />
-                </Link>
+                {notification.sender ? (
+                  <Link
+                    to={`/profile/${notification.sender._id}`}
+                    className="notification-sender"
+                  >
+                    <img
+                      src={getProfilePicture(notification.sender.profilePicture)}
+                      alt={notification.sender.username}
+                    />
+                  </Link>
+                ) : (
+                  <div className="notification-sender">
+                    <img
+                      src={getProfilePicture(null)}
+                      alt="System"
+                    />
+                  </div>
+                )}
                 <div className="notification-text">
                   <p>{getNotificationText(notification)}</p>
                   <span className="notification-time">
