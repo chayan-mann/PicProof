@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, MessageCircle, Trash2, Send } from "lucide-react";
+import { Heart, MessageCircle, Trash2, Send, Sparkles } from "lucide-react";
 import { commentAPI } from "../api";
 import { useAuthStore } from "../store/authStore";
 import { getProfilePicture } from "../utils/imageUrl";
@@ -13,6 +13,7 @@ const Comment = ({
   onDelete,
   onReplyAdded,
   isReply = false,
+  isLLM = false,
 }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState("");
@@ -21,7 +22,7 @@ const Comment = ({
   const [likesCount, setLikesCount] = useState(comment.likesCount || 0);
   const [submitting, setSubmitting] = useState(false);
   const { user } = useAuthStore();
-  const isOwnComment = user?._id === comment.author?._id;
+  const isOwnComment = !isLLM && user?._id === comment.author?._id;
 
   const handleLike = async () => {
     try {
@@ -72,55 +73,73 @@ const Comment = ({
   };
 
   return (
-    <div className={`comment ${isReply ? "reply" : ""}`}>
-      <Link to={`/profile/${comment.author?._id}`}>
-        <img
-          src={getProfilePicture(comment.author?.profilePicture)}
-          alt={comment.author?.username}
-          className="comment-avatar"
-        />
-      </Link>
+    <div className={`comment ${isReply ? "reply" : ""} ${isLLM ? "llm-comment" : ""}`}>
+      {isLLM ? (
+        <div className="comment-avatar llm-avatar">
+          <Sparkles size={18} />
+        </div>
+      ) : (
+        <Link to={`/profile/${comment.author?._id}`}>
+          <img
+            src={getProfilePicture(comment.author?.profilePicture)}
+            alt={comment.author?.username}
+            className="comment-avatar"
+          />
+        </Link>
+      )}
       <div className="comment-content">
         <div className="comment-header">
-          <Link
-            to={`/profile/${comment.author?._id}`}
-            className="comment-author"
-          >
-            <span className="author-name">{comment.author?.name}</span>
-            <span className="author-username">@{comment.author?.username}</span>
-          </Link>
-          <span className="comment-time">{formatTime(comment.createdAt)}</span>
+          {isLLM ? (
+            <div className="comment-author">
+              <Sparkles size={14} className="llm-icon" />
+              <span className="author-name">AI Assistant</span>
+              <span className="author-username">@ai</span>
+            </div>
+          ) : (
+            <Link
+              to={`/profile/${comment.author?._id}`}
+              className="comment-author"
+            >
+              <span className="author-name">{comment.author?.name}</span>
+              <span className="author-username">@{comment.author?.username}</span>
+            </Link>
+          )}
+          {comment.createdAt && (
+            <span className="comment-time">{formatTime(comment.createdAt)}</span>
+          )}
         </div>
         <p className="comment-text">{comment.content}</p>
-        <div className="comment-actions">
-          <button
-            onClick={handleLike}
-            className={`comment-action ${liked ? "liked" : ""}`}
-          >
-            <Heart size={16} fill={liked ? "currentColor" : "none"} />
-            <span>{likesCount > 0 && likesCount}</span>
-          </button>
-          {!isReply && (
+        {!isLLM && (
+          <div className="comment-actions">
             <button
-              onClick={() => setShowReplyForm(!showReplyForm)}
-              className="comment-action"
+              onClick={handleLike}
+              className={`comment-action ${liked ? "liked" : ""}`}
             >
-              <MessageCircle size={16} />
-              <span>Reply</span>
+              <Heart size={16} fill={liked ? "currentColor" : "none"} />
+              <span>{likesCount > 0 && likesCount}</span>
             </button>
-          )}
-          {isOwnComment && (
-            <button
-              onClick={handleDelete}
-              className="comment-action delete-btn"
-            >
-              <Trash2 size={16} />
-              <span>Delete</span>
-            </button>
-          )}
-        </div>
+            {!isReply && (
+              <button
+                onClick={() => setShowReplyForm(!showReplyForm)}
+                className="comment-action"
+              >
+                <MessageCircle size={16} />
+                <span>Reply</span>
+              </button>
+            )}
+            {isOwnComment && (
+              <button
+                onClick={handleDelete}
+                className="comment-action delete-btn"
+              >
+                <Trash2 size={16} />
+                <span>Delete</span>
+              </button>
+            )}
+          </div>
+        )}
 
-        {showReplyForm && (
+        {showReplyForm && !isLLM && (
           <form onSubmit={handleReply} className="reply-form">
             <img
               src={getProfilePicture(user?.profilePicture)}
@@ -146,7 +165,7 @@ const Comment = ({
           </form>
         )}
 
-        {replies.length > 0 && (
+        {replies.length > 0 && !isLLM && (
           <div className="replies">
             {replies.map((reply) => (
               <Comment

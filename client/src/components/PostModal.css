@@ -170,16 +170,144 @@
   flex-direction: column;
 }
 
-.comment-form {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
+.comment-input-section {
   border-bottom: 1px solid var(--border-color);
   background-color: var(--bg-primary);
   position: sticky;
   top: 0;
   z-index: 5;
+}
+
+.comment-form {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+}
+
+.llm-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  margin: 0 1.5rem 1rem;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border: 1.5px solid rgba(147, 51, 234, 0.3);
+  border-radius: 2rem;
+  color: rgba(147, 51, 234, 0.9);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.llm-toggle-btn:hover {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+  border-color: rgba(147, 51, 234, 0.5);
+  transform: translateY(-1px);
+}
+
+.llm-prompt-section {
+  padding: 0 1.5rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  animation: slideDown 0.3s ease-out;
+}
+
+.llm-prompt-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quick-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.quick-prompt-btn {
+  padding: 0.5rem 0.75rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-prompt-btn:hover {
+  background-color: var(--bg-tertiary);
+  border-color: rgba(147, 51, 234, 0.3);
+  color: rgba(147, 51, 234, 0.9);
+}
+
+.llm-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.llm-prompt-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: 2rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+}
+
+.llm-prompt-input:focus {
+  outline: none;
+  border-color: rgba(147, 51, 234, 0.5);
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+}
+
+.llm-prompt-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.llm-generate-btn {
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.9) 0%, rgba(59, 130, 246, 0.9) 100%);
+  border: none;
+  border-radius: 2rem;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.3);
+}
+
+.llm-generate-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+}
+
+.llm-generate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.llm-cancel-btn {
+  padding: 0.75rem 1rem;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 2rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.llm-cancel-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .comment-avatar {

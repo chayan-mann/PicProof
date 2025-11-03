@@ -49,6 +49,8 @@ export const commentAPI = {
   updateComment: (id, data) => api.put(`/comments/${id}`, data),
   deleteComment: (id) => api.delete(`/comments/${id}`),
   likeComment: (id) => api.post(`/comments/${id}/like`),
+  generateLLMComment: (postId, prompt) =>
+    api.post("/comments/llm", { postId, prompt }),
 };
 
 // Notification APIs

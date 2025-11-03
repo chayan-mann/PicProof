@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Heart, MessageCircle, Send } from "lucide-react";
+import { X, Heart, MessageCircle, Send, Sparkles } from "lucide-react";
 import { postAPI, commentAPI } from "../api";
 import { useAuthStore } from "../store/authStore";
 import { getProfilePicture, getImageUrl } from "../utils/imageUrl";
@@ -10,11 +10,15 @@ import "./PostModal.css";
 const PostModal = ({ postId, onClose }) => {
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
+  const [llmComments, setLlmComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
+  const [showLLMPrompt, setShowLLMPrompt] = useState(false);
+  const [llmPrompt, setLlmPrompt] = useState("");
+  const [generatingLLM, setGeneratingLLM] = useState(false);
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -86,6 +90,35 @@ const PostModal = ({ postId, onClose }) => {
     }));
   };
 
+  const handleGenerateLLMComment = async (e) => {
+    e.preventDefault();
+    if (!llmPrompt.trim()) return;
+
+    setGeneratingLLM(true);
+    try {
+      const response = await commentAPI.generateLLMComment(postId, llmPrompt);
+      setLlmComments((prev) => [response.data.data, ...prev]);
+      setLlmPrompt("");
+      setShowLLMPrompt(false);
+      setPost((prev) => ({
+        ...prev,
+        commentsCount: (prev.commentsCount || 0) + 1,
+      }));
+    } catch (error) {
+      console.error("Error generating LLM comment:", error);
+      alert("Failed to generate AI comment. Please try again.");
+    } finally {
+      setGeneratingLLM(false);
+    }
+  };
+
+  const quickPrompts = [
+    "Analyze this post",
+    "What's interesting about this?",
+    "Provide insights",
+    "Summarize this post",
+  ];
+
   if (loading) {
     return (
       <div className="modal-overlay" onClick={onClose}>
@@ -151,31 +184,99 @@ const PostModal = ({ postId, onClose }) => {
         </div>
 
         <div className="modal-comments">
-          <form onSubmit={handleSubmitComment} className="comment-form">
-            <img
-              src={getProfilePicture(user?.profilePicture)}
-              alt="Your avatar"
-              className="comment-avatar"
-            />
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write a comment..."
-              className="comment-input"
-              disabled={submitting}
-            />
+          <div className="comment-input-section">
+            <form onSubmit={handleSubmitComment} className="comment-form">
+              <img
+                src={getProfilePicture(user?.profilePicture)}
+                alt="Your avatar"
+                className="comment-avatar"
+              />
+              <input
+                type="text"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Write a comment..."
+                className="comment-input"
+                disabled={submitting}
+              />
+              <button
+                type="submit"
+                className="comment-submit"
+                disabled={!newComment.trim() || submitting}
+              >
+                <Send size={20} />
+              </button>
+            </form>
             <button
-              type="submit"
-              className="comment-submit"
-              disabled={!newComment.trim() || submitting}
+              onClick={() => setShowLLMPrompt(!showLLMPrompt)}
+              className="llm-toggle-btn"
+              title="Get AI-generated comment"
             >
-              <Send size={20} />
+              <Sparkles size={18} />
+              <span>AI Comment</span>
             </button>
-          </form>
+          </div>
+
+          {showLLMPrompt && (
+            <div className="llm-prompt-section">
+              <form onSubmit={handleGenerateLLMComment} className="llm-prompt-form">
+                <div className="quick-prompts">
+                  {quickPrompts.map((prompt, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setLlmPrompt(prompt)}
+                      className="quick-prompt-btn"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+                <div className="llm-input-group">
+                  <input
+                    type="text"
+                    value={llmPrompt}
+                    onChange={(e) => setLlmPrompt(e.target.value)}
+                    placeholder="Ask AI to comment on this post..."
+                    className="llm-prompt-input"
+                    disabled={generatingLLM}
+                  />
+                  <button
+                    type="submit"
+                    className="llm-generate-btn"
+                    disabled={!llmPrompt.trim() || generatingLLM}
+                  >
+                    {generatingLLM ? "Generating..." : "Generate"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowLLMPrompt(false);
+                      setLlmPrompt("");
+                    }}
+                    className="llm-cancel-btn"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
           <div className="comments-list">
-            {comments.length === 0 ? (
+            {llmComments.length > 0 && (
+              <>
+                {llmComments.map((comment) => (
+                  <Comment
+                    key={comment._id}
+                    comment={comment}
+                    postId={postId}
+                    isLLM={true}
+                  />
+                ))}
+              </>
+            )}
+            {comments.length === 0 && llmComments.length === 0 ? (
               <p className="no-comments">
                 No comments yet. Be the first to comment!
               </p>

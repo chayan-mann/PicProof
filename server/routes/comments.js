@@ -9,6 +9,7 @@ const {
 } = require("../controllers/commentController");
 const { protect } = require("../middleware/auth");
 const validate = require("../middleware/validate");
+const { getLLMComment } = require("../controllers/LLMController");
 
 const router = express.Router();
 
@@ -36,5 +37,6 @@ router.post("/", protect, createCommentValidation, validate, createComment);
 router.put("/:id", protect, updateCommentValidation, validate, updateComment);
 router.delete("/:id", protect, deleteComment);
 router.post("/:id/like", protect, likeComment);
+router.post("/llm", protect, getLLMComment);
 
 module.exports = router;
