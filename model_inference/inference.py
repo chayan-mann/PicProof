@@ -63,7 +63,10 @@ def predict():
     with torch.no_grad():
         outputs = model(image)
         probs = torch.softmax(outputs, dim=1)[0]
-        class_id = torch.argmax(probs).item()
+        if probs[0] > 0.1:
+            class_id = 0
+        else:
+            class_id = 1
         confidence = probs[class_id].item()
 
     return jsonify({
