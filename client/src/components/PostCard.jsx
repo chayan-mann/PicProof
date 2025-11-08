@@ -14,6 +14,7 @@ const PostCard = ({ post, onDelete }) => {
   const isSynthetic = textAnalysis?.isSynthetic;
   const ageRating = textAnalysis?.age_rating;
   const imagePrediction = imageAnalysis?.prediction;
+  const isMisinformation = textAnalysis?.misinformation;
   const isHarmful = textAnalysis?.isHarmful;
   const [showModal, setShowModal] = useState(false);
   const [liked, setLiked] = useState(
@@ -90,6 +91,9 @@ const PostCard = ({ post, onDelete }) => {
       <div className="post-tags">
         {isSynthetic && <span className="tag synthetic">Synthetic</span>}
         {isHarmful && <span className="tag harmful">Harmful</span>}
+        {isMisinformation && (
+          <span className="tag misinformation">Misinformation</span>
+        )}
         {ageRating && ageRating !== "safe" && (
           <span className="tag age-rating">{ageRating}</span>
         )}

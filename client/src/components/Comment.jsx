@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Trash2, Send, Sparkles } from "lucide-react";
+import { marked } from "marked";
 import { commentAPI } from "../api";
 import { useAuthStore } from "../store/authStore";
 import { getProfilePicture } from "../utils/imageUrl";
@@ -72,6 +73,11 @@ const Comment = ({
     if (onReplyAdded) onReplyAdded();
   };
 
+  const parsedLLMContent = useMemo(() => {
+    if (!isLLM) return "";
+    return marked.parse(comment.content || "", { breaks: true });
+  }, [isLLM, comment.content]);
+
   return (
     <div className={`comment ${isReply ? "reply" : ""} ${isLLM ? "llm-comment" : ""}`}>
       {isLLM ? (
@@ -108,7 +114,14 @@ const Comment = ({
             <span className="comment-time">{formatTime(comment.createdAt)}</span>
           )}
         </div>
-        <p className="comment-text">{comment.content}</p>
+        {isLLM ? (
+          <div
+            className="comment-text"
+            dangerouslySetInnerHTML={{ __html: parsedLLMContent }}
+          />
+        ) : (
+          <p className="comment-text">{comment.content}</p>
+        )}
         {!isLLM && (
           <div className="comment-actions">
             <button

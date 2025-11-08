@@ -14,6 +14,7 @@ Analyze the following content and respond ONLY in JSON format:
 {
   "isSynthetic": <boolean>,
   "age_rating": <"safe" | "sensitive" | "explicit">,
+  "misinformation": <boolean>,
   "isHarmful": <boolean>
 }
 Do not include any explanations or additional text. Only return the JSON object.

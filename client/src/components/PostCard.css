@@ -156,6 +156,10 @@
   background-color: #dc3545;
 }
 
+.tag.misinformation {
+  background-color: #ff6f61;
+}
+
 .tag.age-rating {
   background-color: #17a2b8;
 }
