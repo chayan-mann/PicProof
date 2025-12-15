@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "server": "nodemon index.js"
+    "server": "nodemon index.js",
+    "build": "npm install && npm install --only=dev && npm install --only=production"
   },
   "keywords": [
     "social-media",
