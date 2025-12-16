@@ -64,7 +64,7 @@ if (process.env.NODE_ENV === "development") {
 app.use(passport.initialize());
 
 // Serve static files (uploads)
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 // API Routes
 app.get("/", (req, res) => {
@@ -109,8 +109,7 @@ const server = app.listen(PORT, () => {
     ║                                                   ║
     ║   🚀 PicProof Server Running                     ║
     ║                                                   ║
-    ║   Environment: ${
-      process.env.NODE_ENV || "development"
+    ║   Environment: ${process.env.NODE_ENV || "development"
     }                      ║
     ║   Port: ${PORT}                                    ║
     ║   URL: http://localhost:${PORT}                   ║

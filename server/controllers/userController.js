@@ -240,7 +240,7 @@ exports.updateProfilePicture = async (req, res, next) => {
 
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { profilePicture: `/uploads/${req.file.filename}` },
+      { profilePicture: fs.readFileSync(req.file.path) },
       { new: true, runValidators: true }
     );
 

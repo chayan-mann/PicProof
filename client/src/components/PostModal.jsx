@@ -161,9 +161,9 @@ const PostModal = ({ postId, onClose }) => {
 
           <div className="post-content">
             <p>{post.content}</p>
-            {post.mediaUrl && (
+            {(post.image || post.mediaUrl) && (
               <div className="post-media">
-                <img src={getImageUrl(post.mediaUrl)} alt="Post media" />
+                <img src={getImageUrl(post.image || post.mediaUrl)} alt="Post media" />
               </div>
             )}
           </div>

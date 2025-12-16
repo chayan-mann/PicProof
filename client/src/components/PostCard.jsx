@@ -75,9 +75,9 @@ const PostCard = ({ post, onDelete }) => {
 
       <div className="post-content">
         <p>{post.content}</p>
-        {post.mediaUrl && (
+        {(post.image || post.mediaUrl) && (
           <div className="post-media">
-            <img src={getImageUrl(post.mediaUrl)} alt="Post media" />
+            <img src={getImageUrl(post.image || post.mediaUrl)} alt="Post media" />
             {post.aiFlag && post.aiFlag.isSynthetic && (
               <div className="ai-warning">
                 <AlertTriangle size={16} />

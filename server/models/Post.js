@@ -8,14 +8,9 @@ const postSchema = new mongoose.Schema(
       maxlength: [500, "Post content cannot exceed 500 characters"],
       trim: true,
     },
-    mediaUrl: {
-      type: String,
-      default: "",
-    },
-    mediaType: {
-      type: String,
-      enum: ["image", "video", "none"],
-      default: "none",
+    image: {
+      type: Buffer,
+      required: false,
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,

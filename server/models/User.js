@@ -42,13 +42,12 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
     profilePicture: {
-      type: String,
-      // Leave empty by default; client will render a local placeholder
-      default: "",
+      type: Buffer,
+      default: null,
     },
     coverPhoto: {
-      type: String,
-      default: "",
+      type: Buffer,
+      default: null,
     },
     followers: [
       {

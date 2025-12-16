@@ -5,7 +5,6 @@ const Notification = require("../models/Notification");
 const { getModerationResponse } = require("../services/LLMService");
 const { callFlaskAPI } = require("../services/FlaskService");
 const mongoose = require("mongoose");
-const fs = require("fs");
 
 // @desc    Create a post
 // @route   POST /api/posts
@@ -32,16 +31,12 @@ exports.createPost = async (req, res, next) => {
       text_analysis: aiResponse,
     };
 
-  // Handle media upload
-  if (req.file) {
-      postData.mediaUrl = `/uploads/${req.file.filename}`;
-      postData.mediaType = req.file.mimetype.startsWith("image")
-        ? "image"
-        : "video";
-
+    // Handle media upload
+    if (req.file) {
       // Create AI flag entry for media analysis (will be processed by AI service)
-      const buffer = fs.readFileSync(req.file.path);
-      const mediaAnalysisResponse = await callFlaskAPI(buffer, req.file.filename, req.file.mimetype);
+      const buffer = req.file.buffer;
+      postData.image = buffer;
+      const mediaAnalysisResponse = await callFlaskAPI(buffer, req.file.originalname, req.file.mimetype);
       postData.image_analysis = mediaAnalysisResponse;
       const post = await Post.create(postData);
 

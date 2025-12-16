@@ -2,14 +2,15 @@ const { GoogleGenAI } = require("@google/genai");
 const ai = new GoogleGenAI({});
 
 async function getModerationResponse(prompt) {
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            text: `You are a content moderation AI.
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `You are a content moderation AI.
 Analyze the following content and respond ONLY in JSON format:
 {
   "isSynthetic": <boolean>,
@@ -20,13 +21,22 @@ Analyze the following content and respond ONLY in JSON format:
 Do not include any explanations or additional text. Only return the JSON object.
 Content:
 ${prompt}`
-          }
-        ],
-      },
-    ],
-  });
+            }
+          ],
+        },
+      ],
+    });
 
-  return response.text;
+    return response.text;
+  } catch (error) {
+    console.error("LLM Service Error:", error);
+    return JSON.stringify({
+      isSynthetic: false,
+      age_rating: "safe",
+      misinformation: false,
+      isHarmful: false
+    });
+  }
 }
 
 async function getResponse(post, prompt, mediaBuffer, mediaType) {
@@ -34,7 +44,7 @@ async function getResponse(post, prompt, mediaBuffer, mediaType) {
   if (mediaBuffer && mediaType) {
     // Convert Buffer to base64 string
     const base64Data = mediaBuffer.toString('base64');
-    
+
     // Determine mimeType based on mediaType enum
     let mimeType;
     if (mediaType === "image") {
@@ -54,7 +64,7 @@ async function getResponse(post, prompt, mediaBuffer, mediaType) {
     } else {
       mimeType = "image/jpeg"; // fallback
     }
-    
+
     contents = [
       {
         inlineData: {
